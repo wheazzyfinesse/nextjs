@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db/prisma";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "../api/auth/[...nextauth]/route";
+import { revalidatePath } from "next/cache";
 
 export const metadata = {
     title: "Add Product - Flowmart",
@@ -31,6 +32,7 @@ async function addProduct(formData: FormData) {
         },
     });
 
+    revalidatePath("/")
     redirect("/");
 }
 

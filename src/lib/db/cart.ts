@@ -99,10 +99,12 @@ export async function mergeAnonymousCartIntoUserCart(userId: string) {
 
     await prisma.$transaction(async (tx) => {
         if (userCart) {
+
             const mergedCartItems = mergeCartItems(
                 localCart.items,
                 userCart.items
             );
+
             await tx.cartItem.deleteMany({
                 where: { cartId: userCart.id },
             });
@@ -148,7 +150,8 @@ export async function mergeAnonymousCartIntoUserCart(userId: string) {
 }
 
 // Merging cart items once user is found and has items in cart during previous activity session
-function mergeCartItems(...cartItems: CartItemPrisma[][]) {
+function mergeCartItems({ ...cartItems }: CartItemPrisma[][]) {
+    console.log(cartItems)
     return cartItems.reduce((acc, items) => {
         items.forEach((item) => {
             const existingItem = acc.find(
@@ -160,6 +163,7 @@ function mergeCartItems(...cartItems: CartItemPrisma[][]) {
                 acc.push(item);
             }
         });
+        console.log(acc)
         return acc;
     }, [] as CartItem[]);
 }
