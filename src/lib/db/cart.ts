@@ -99,8 +99,8 @@ export async function mergeAnonymousCartIntoUserCart(userId: string) {
 
     await prisma.$transaction(async (tx) => {
         if (userCart) {
-
-            const mergedCartItems = mergeCartItems(
+            
+            const mergedCartItems =  mergeCartItems(
                 localCart.items,
                 userCart.items
             );
@@ -110,14 +110,11 @@ export async function mergeAnonymousCartIntoUserCart(userId: string) {
             });
 
             await tx.cart.update({
-                where: {
-                    id: userCart.id,
-                },
+                where: {id: userCart.id},
                 data: {
                     items: {
                         createMany: {
                             data: mergedCartItems.map((item) => ({
-                                cartId: userCart.id,
                                 productId: item.productId,
                                 quantity: item.quantity,
                             })),
@@ -143,16 +140,16 @@ export async function mergeAnonymousCartIntoUserCart(userId: string) {
         }
 
         await tx.cart.delete({
-            where: { id: localCartId },
+            where: { id: localCart.id },
         });
         cookies().set("localCartId", "");
     });
 }
 
 // Merging cart items once user is found and has items in cart during previous activity session
-function mergeCartItems({ ...cartItems }: CartItemPrisma[][]) {
-    console.log(cartItems)
+function mergeCartItems(...cartItems: CartItemPrisma[][]): CartItemPrisma[] {
     return cartItems.reduce((acc, items) => {
+
         items.forEach((item) => {
             const existingItem = acc.find(
                 (i) => i.productId === item.productId
@@ -163,7 +160,7 @@ function mergeCartItems({ ...cartItems }: CartItemPrisma[][]) {
                 acc.push(item);
             }
         });
-        console.log(acc)
+        
         return acc;
-    }, [] as CartItem[]);
+    }, [] as CartItemPrisma[]);
 }
