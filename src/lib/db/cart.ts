@@ -141,7 +141,7 @@ export async function mergeAnonymousCartIntoUserCart(userId: string) {
         }
 
         await tx.cart.delete({
-            where: { id: localCart.id },
+            where: { id: localCartId },
         });
         cookies().set("localCartId", "");
     });
